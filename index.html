@@ -67,19 +67,35 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwF0uPYbW4kFYs9XHRyTM0t1PVPlh6zPmdJohww21R8GKw_eMFC0GXmKJbsfQt8b97NbQ/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbziypYmAUkD6RLvXYDuiEy8X2BZEa0g4fhDjFfpCooESrIXbxksIprPn6521xtbNyTRLA/exec"; 
     let activeCustomer = null, activeMonthSelection = null, monthlyBillAmount = 0;
 
     function toggleModal(show) { document.getElementById('tcModal').style.display = show ? 'flex' : 'none'; }
 
     async function handleLogin() {
       const phone = document.getElementById('loginPhone').value.trim();
+      const loginBtn = document.getElementById('loginBtn');
       if(phone.length < 10) { alert("Invalid number."); return; }
-      let res = await fetch(`${API_URL}?action=getData&id=${phone}`);
-      let data = await res.json();
-      if(!data || !data.profile) { alert("Account Profile Not Found."); return; }
-      activeCustomer = phone;
-      renderDashboard(data);
+      
+      loginBtn.disabled = true;
+      loginBtn.innerText = "Verifying...";
+
+      try {
+        let res = await fetch(`${API_URL}?action=getData&id=${phone}`);
+        let data = await res.json();
+        if(!data || !data.profile) { 
+          alert("Account Profile Not Found."); 
+          loginBtn.disabled = false;
+          loginBtn.innerText = "Verify Account";
+          return; 
+        }
+        activeCustomer = phone;
+        renderDashboard(data);
+      } catch(e) {
+        alert("Verification failed. Please check your data connection.");
+        loginBtn.disabled = false;
+        loginBtn.innerText = "Verify Account";
+      }
     }
 
     function renderDashboard(data) {
@@ -105,45 +121,4 @@
       }
     }
 
-    function selectMonth(m) { activeMonthSelection = m; document.getElementById('paymentPanel').style.display = 'block'; }
-
-    function processSubmit() {
-      const fileInput = document.getElementById('fileInput').files[0];
-      const utr = document.getElementById('utrInput').value.trim();
-      const submitBtn = document.getElementById('submitBtn');
-
-      if (!fileInput && !utr) { alert("Please upload a screenshot or enter a UTR string sequence."); return; }
-      
-      submitBtn.disabled = true;
-      submitBtn.innerText = "Processing Data Upload...";
-
-      if (fileInput) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          executeServerPush(utr, e.target.result, fileInput.name);
-        };
-        reader.readAsDataURL(fileInput);
-      } else {
-        executeServerPush(utr, null, null);
-      }
-    }
-
-    async function executeServerPush(utr, fileData, fileName) {
-      let payload = {
-        action: "submit", id: activeCustomer, month: activeMonthSelection,
-        amount: monthlyBillAmount, utr: utr, fileData: fileData, fileName: fileName
-      };
-      
-      let res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-      let status = await res.json();
-      if(status) {
-        alert("Payment logged for Admin Verification panel view!");
-        document.getElementById('paymentPanel').style.display = 'none';
-        handleLogin();
-      }
-    }
-
-    function logout() { location.reload(); }
-  </script>
-</body>
-</html>
+    function
