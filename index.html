@@ -67,7 +67,7 @@
   </div>
 
   <script>
-    const API_URL = "YOUR_DEPLOYED_APPS_SCRIPT_URL"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbwF0uPYbW4kFYs9XHRyTM0t1PVPlh6zPmdJohww21R8GKw_eMFC0GXmKJbsfQt8b97NbQ/exec"; 
     let activeCustomer = null, activeMonthSelection = null, monthlyBillAmount = 0;
 
     function toggleModal(show) { document.getElementById('tcModal').style.display = show ? 'flex' : 'none'; }
@@ -129,7 +129,6 @@
     }
 
     async function executeServerPush(utr, fileData, fileName) {
-      // Package data parameters safely via POST/GET endpoints to the app script script configuration
       let payload = {
         action: "submit", id: activeCustomer, month: activeMonthSelection,
         amount: monthlyBillAmount, utr: utr, fileData: fileData, fileName: fileName
