@@ -39,7 +39,10 @@
       <div id="matrixGrid" class="grid grid-cols-3 gap-3 mb-6"></div>
 
       <div id="paymentPanel" class="hidden bg-emerald-50 rounded-2xl p-5 border-2 border-emerald-200 shadow-md mb-6">
-        <h4 id="paymentTitle" class="font-bold text-emerald-900 text-sm mb-3">Submit Payout Record</h4>
+        <div class="flex justify-between items-center mb-3">
+          <h4 id="paymentTitle" class="font-bold text-emerald-900 text-sm">Submit Payout Record</h4>
+          <button onclick="document.getElementById('paymentPanel').style.display='none'" class="text-emerald-700 font-bold text-sm">✕</button>
+        </div>
         
         <label class="block text-xs font-bold text-emerald-800 mb-1">Option A: Upload Pay Slip Screenshot</label>
         <input type="file" id="fileInput" accept="image/*" class="w-full text-xs bg-white p-2 rounded-xl border mb-4">
@@ -55,14 +58,24 @@
       </div>
     </div>
 
-    <div class="text-center py-4 border-t bg-gray-50"><button onclick="toggleModal(true)" class="text-xs text-amber-700 underline font-bold">Terms & Conditions</button></div>
+    <div class="text-center py-4 border-t bg-gray-50">
+      <button onclick="toggleModal(true)" class="text-xs text-amber-700 underline font-bold hover:text-amber-900">
+        Terms & Conditions (नियम और शर्तें देखें)
+      </button>
+    </div>
   </div>
 
   <div id="tcModal" class="modal flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-      <h3 class="font-bold mb-3 border-b pb-2">Scheme Rules Matrix</h3>
-      <p class="text-xs text-gray-600">All deposited value amounts map to fiat points and clear automatically against jewellery selections upon maturity limits.</p>
-      <button onclick="toggleModal(false)" class="w-full mt-4 bg-amber-800 text-white font-bold py-2 rounded-xl">I Accept</button>
+      <h3 class="font-black text-gray-900 text-md mb-3 border-b pb-2 uppercase tracking-wide">Scheme Rules Matrix</h3>
+      <div class="text-xs text-gray-600 space-y-2.5 leading-relaxed text-justify">
+        <p><strong>1. Maximum Term Mandates:</strong> This Gold Savings scheme tracks up to an 11-month active matrix cycle, requiring terminal account closures before reaching a 365-day threshold duration timeline from the date of validation.</p>
+        <p><strong>2. Pricing Mechanics:</strong> Value balances are fully recorded in local cash value points. Conversion metrics adjust cleanly against showroom retail collections entirely upon reaching maturity parameters.</p>
+        <p><strong>3. Late Submissions:</strong> Installment payouts must present proper verification logs before calendar benchmarks to retain continuous bonus eligibility flags.</p>
+      </div>
+      <button onclick="toggleModal(false)" class="w-full mt-5 bg-amber-800 hover:bg-amber-900 text-white font-extrabold py-3 rounded-xl shadow transition">
+        I Accept & Close
+      </button>
     </div>
   </div>
 
@@ -70,7 +83,15 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbziypYmAUkD6RLvXYDuiEy8X2BZEa0g4fhDjFfpCooESrIXbxksIprPn6521xtbNyTRLA/exec"; 
     let activeCustomer = null, activeMonthSelection = null, monthlyBillAmount = 0;
 
-    function toggleModal(show) { document.getElementById('tcModal').style.display = show ? 'flex' : 'none'; }
+    // Fixed: Dedicated structural logic wrapper to completely open and close modal views flawlessly
+    function toggleModal(show) { 
+      const modal = document.getElementById('tcModal');
+      if (show) {
+        modal.style.setProperty('display', 'flex', 'important');
+      } else {
+        modal.style.display = 'none';
+      }
+    }
 
     async function handleLogin() {
       const phone = document.getElementById('loginPhone').value.trim();
@@ -121,4 +142,45 @@
       }
     }
 
-    function
+    function selectMonth(m) { activeMonthSelection = m; document.getElementById('paymentPanel').style.display = 'block'; }
+
+    function processSubmit() {
+      const fileInput = document.getElementById('fileInput').files[0];
+      const utr = document.getElementById('utrInput').value.trim();
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (!fileInput && !utr) { alert("Please upload a screenshot or enter a UTR string sequence."); return; }
+      
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Processing Data Upload...";
+
+      if (fileInput) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          executeServerPush(utr, e.target.result, fileInput.name);
+        };
+        reader.readAsDataURL(fileInput);
+      } else {
+        executeServerPush(utr, null, null);
+      }
+    }
+
+    async function executeServerPush(utr, fileData, fileName) {
+      let payload = {
+        action: "submit", id: activeCustomer, month: activeMonthSelection,
+        amount: monthlyBillAmount, utr: utr, fileData: fileData, fileName: fileName
+      };
+      
+      let res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+      let status = await res.json();
+      if(status) {
+        alert("Payment logged for Admin Verification panel view!");
+        document.getElementById('paymentPanel').style.display = 'none';
+        handleLogin();
+      }
+    }
+
+    function logout() { location.reload(); }
+  </script>
+</body>
+</html>
