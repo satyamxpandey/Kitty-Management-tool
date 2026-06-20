@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Gold Kitty Passbook</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+  </style>
+</head>
+<body class="bg-slate-50 text-gray-800 min-h-screen">
+
+  <div class="max-w-md w-full mx-auto bg-white min-h-screen shadow-2xl border-t-8 border-amber-600 flex flex-col justify-between">
+    
+    <div class="text-center pt-6 px-5">
+      <h1 class="text-2xl font-black text-amber-800">ABHUSHAN JEWELLERS</h1>
+      <p class="text-xs text-gray-500 font-medium">Digital Passbook Account Window</p>
+    </div>
+
+    <div id="loginScreen" class="px-6 py-10 flex-grow flex flex-col justify-center">
+      <div class="bg-amber-50 rounded-2xl p-6 border border-amber-200 text-center shadow-sm">
+        <input type="tel" id="loginPhone" placeholder="Enter Registered Mobile Number" 
+               class="w-full p-4 rounded-xl border-2 border-amber-300 text-center text-xl font-bold tracking-wider mb-4">
+        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-amber-700 hover:bg-amber-800 text-white font-extrabold py-4 rounded-xl shadow transition">Verify Account</button>
+      </div>
+    </div>
+
+    <div id="portalScreen" class="hidden px-5 py-6 flex-grow">
+      <div class="flex justify-end mb-4"><button onclick="logout()" class="text-xs bg-gray-100 border p-2 rounded-xl">← Logout</button></div>
+
+      <div class="bg-gradient-to-br from-amber-700 to-amber-900 rounded-2xl p-5 text-white shadow-xl mb-6">
+        <h2 id="custName" class="text-xl font-black mb-2">---</h2>
+        <p id="custAmount" class="font-bold text-lg text-amber-200">₹0 / month</p>
+        <p id="custPhone" class="text-xs opacity-70">----------</p>
+      </div>
+
+      <h3 class="font-bold text-gray-700 text-sm mb-3 uppercase tracking-wide">11-Month Plan Payment Grid</h3>
+      <div id="matrixGrid" class="grid grid-cols-3 gap-3 mb-6"></div>
+
+      <div id="paymentPanel" class="hidden bg-emerald-50 rounded-2xl p-5 border-2 border-emerald-200 shadow-md mb-6">
+        <h4 id="paymentTitle" class="font-bold text-emerald-900 text-sm mb-3">Submit Payout Record</h4>
+        
+        <label class="block text-xs font-bold text-emerald-800 mb-1">Option A: Upload Pay Slip Screenshot</label>
+        <input type="file" id="fileInput" accept="image/*" class="w-full text-xs bg-white p-2 rounded-xl border mb-4">
+
+        <div class="text-center text-xs font-bold text-emerald-600 my-2">-- OR --</div>
+
+        <label class="block text-xs font-bold text-emerald-800 mb-1">Option B: Type 12-Digit UTR Number</label>
+        <input type="number" id="utrInput" placeholder="Enter Transaction UTR Code" class="w-full p-3 rounded-xl border mb-4 text-center font-mono">
+
+        <button onclick="processSubmit()" id="submitBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-xl shadow">
+          Upload & Request Approval
+        </button>
+      </div>
+    </div>
+
+    <div class="text-center py-4 border-t bg-gray-50"><button onclick="toggleModal(true)" class="text-xs text-amber-700 underline font-bold">Terms & Conditions</button></div>
+  </div>
+
+  <div id="tcModal" class="modal flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+      <h3 class="font-bold mb-3 border-b pb-2">Scheme Rules Matrix</h3>
+      <p class="text-xs text-gray-600">All deposited value amounts map to fiat points and clear automatically against jewellery selections upon maturity limits.</p>
+      <button onclick="toggleModal(false)" class="w-full mt-4 bg-amber-800 text-white font-bold py-2 rounded-xl">I Accept</button>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "YOUR_DEPLOYED_APPS_SCRIPT_URL"; 
+    let activeCustomer = null, activeMonthSelection = null, monthlyBillAmount = 0;
+
+    function toggleModal(show) { document.getElementById('tcModal').style.display = show ? 'flex' : 'none'; }
+
+    async function handleLogin() {
+      const phone = document.getElementById('loginPhone').value.trim();
+      if(phone.length < 10) { alert("Invalid number."); return; }
+      let res = await fetch(`${API_URL}?action=getData&id=${phone}`);
+      let data = await res.json();
+      if(!data || !data.profile) { alert("Account Profile Not Found."); return; }
+      activeCustomer = phone;
+      renderDashboard(data);
+    }
+
+    function renderDashboard(data) {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('portalScreen').classList.remove('hidden');
+      document.getElementById('custName').innerText = data.profile.name;
+      document.getElementById('custAmount').innerText = "₹" + data.profile.monthlyAmount;
+      document.getElementById('custPhone').innerText = data.profile.phone;
+      monthlyBillAmount = data.profile.monthlyAmount;
+
+      let grid = document.getElementById('matrixGrid'); grid.innerHTML = "";
+      for (let m = 1; m <= 11; m++) {
+        let tx = data.transactions.find(t => t.month == m);
+        let style = "bg-gray-50 border text-gray-400";
+        let label = `Month ${m}<br><span class="text-[9px]">UNPAID</span>`;
+        let act = `onclick="selectMonth(${m})"`;
+
+        if(tx) {
+          if(tx.status === "Paid") { style = "bg-emerald-50 border-2 border-emerald-300 text-emerald-700 font-bold"; label = `Month ${m}<br><span class="text-[9px]">✅ PAID</span>`; act = ""; }
+          else if(tx.status === "Pending") { style = "bg-amber-50 border-2 border-amber-300 text-amber-700 animate-pulse"; label = `Month ${m}<br><span class="text-[9px]">⏳ REVIEW</span>`; act = ""; }
+        }
+        grid.innerHTML += `<div ${act} class="p-4 text-center rounded-2xl cursor-pointer ${style}">${label}</div>`;
+      }
+    }
+
+    function selectMonth(m) { activeMonthSelection = m; document.getElementById('paymentPanel').style.display = 'block'; }
+
+    function processSubmit() {
+      const fileInput = document.getElementById('fileInput').files[0];
+      const utr = document.getElementById('utrInput').value.trim();
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (!fileInput && !utr) { alert("Please upload a screenshot or enter a UTR string sequence."); return; }
+      
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Processing Data Upload...";
+
+      if (fileInput) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          executeServerPush(utr, e.target.result, fileInput.name);
+        };
+        reader.readAsDataURL(fileInput);
+      } else {
+        executeServerPush(utr, null, null);
+      }
+    }
+
+    async function executeServerPush(utr, fileData, fileName) {
+      // Package data parameters safely via POST/GET endpoints to the app script script configuration
+      let payload = {
+        action: "submit", id: activeCustomer, month: activeMonthSelection,
+        amount: monthlyBillAmount, utr: utr, fileData: fileData, fileName: fileName
+      };
+      
+      let res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+      let status = await res.json();
+      if(status) {
+        alert("Payment logged for Admin Verification panel view!");
+        document.getElementById('paymentPanel').style.display = 'none';
+        handleLogin();
+      }
+    }
+
+    function logout() { location.reload(); }
+  </script>
+</body>
+</html>
