@@ -62,8 +62,8 @@
     </div>
 
     <script>
-        // PASTE YOUR RE-DEPLOYED WEB APP URL HERE
-        const SCRIPT_URL = "YOUR_NEW_DEPLOYED_WEB_APP_URL";
+        // AAPKA LIVE SCRIPT URL LINK IDHAR 100% SET HAI:
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc4D1Hq2sf6z5MOEVhJLW1jHGuur10ZNROO-giDYNznTNILqxatg1LpZqmTHjtmvKAsQ/exec";
 
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -76,9 +76,18 @@
 
         function fetchPassbook() {
             const phone = document.getElementById('phoneInput').value.trim();
+            if(!phone) return alert("Please enter a phone number.");
+            
+            const fetchBtn = document.getElementById('fetchBtn');
+            fetchBtn.innerText = "Fetching...";
+            fetchBtn.disabled = true;
+
             fetch(`${SCRIPT_URL}?action=getData&id=${phone}`)
             .then(r => r.json()).then(data => {
-                if(!data.profile) return alert("Record not found.");
+                fetchBtn.innerText = "View Passbook";
+                fetchBtn.disabled = false;
+                
+                if(!data.profile) return alert("Record not found. Please check the Google Sheet to ensure this phone number exists in the 'Customers' tab.");
                 document.getElementById('passbookContainer').classList.remove('hidden-view');
                 document.getElementById('custName').innerText = data.profile.name;
                 document.getElementById('custPhone').innerText = "+91 " + data.profile.phone;
@@ -92,6 +101,10 @@
                     else if(tx && tx.status === "Pending") { label = "⏳ Pending"; style = "bg-amber-50 text-amber-700 animate-pulse"; }
                     grid.innerHTML += `<div class="p-3 rounded-xl ${style} text-center text-xs"><span class="text-[9px] block opacity-60">M-${m}</span>${label}</div>`;
                 }
+            }).catch(err => {
+                fetchBtn.innerText = "View Passbook";
+                fetchBtn.disabled = false;
+                alert("Network connection error or Google Script deployment is block-checking.");
             });
         }
 
