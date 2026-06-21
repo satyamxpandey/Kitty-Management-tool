@@ -1,185 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Digital Gold Kitty Passbook</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jewllz Auto-Passbook & Master Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>.hidden-view { display: none !important; }</style>
 </head>
-<body class="bg-slate-50 text-gray-800 min-h-screen">
+<body class="bg-gray-50 text-gray-800 antialiased">
 
-  <div class="max-w-md w-full mx-auto bg-white min-h-screen shadow-2xl border-t-8 border-amber-600 flex flex-col justify-between">
-    
-    <div class="text-center pt-6 px-5">
-      <h1 class="text-2xl font-black text-amber-800">ABHUSHAN JEWELLERS</h1>
-      <p class="text-xs text-gray-500 font-medium">Digital Passbook Account Window</p>
-    </div>
+    <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
+        <div>
+            <header class="text-center py-6">
+                <h1 class="text-2xl font-bold text-amber-600 tracking-tight">JEWLLZ KITTY SYSTEM</h1>
+                <p class="text-xs text-gray-400 uppercase tracking-widest mt-1">Live Passbook Ledger</p>
+            </header>
 
-    <div id="loginScreen" class="px-6 py-10 flex-grow flex flex-col justify-center">
-      <div class="bg-amber-50 rounded-2xl p-6 border border-amber-200 text-center shadow-sm">
-        <input type="tel" id="loginPhone" placeholder="Enter Registered Mobile Number" 
-               class="w-full p-4 rounded-xl border-2 border-amber-300 text-center text-xl font-bold tracking-wider mb-4">
-        <button onclick="handleLogin()" id="loginBtn" class="w-full bg-amber-700 hover:bg-amber-800 text-white font-extrabold py-4 rounded-xl shadow transition">Verify Account</button>
-      </div>
-    </div>
+            <div class="bg-white rounded-2xl shadow-xs p-6 border border-gray-100 mb-6">
+                <input type="tel" id="phoneInput" placeholder="Enter Registered Phone" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500 mb-3">
+                <button onclick="fetchPassbook()" id="fetchBtn" class="w-full bg-amber-600 text-white font-medium py-3 rounded-xl text-sm shadow-xs hover:bg-amber-700 transition-all cursor-pointer">View Passbook</button>
+            </div>
 
-    <div id="portalScreen" class="hidden px-5 py-6 flex-grow">
-      <div class="flex justify-end mb-4"><button onclick="logout()" class="text-xs bg-gray-100 border p-2 rounded-xl">← Logout</button></div>
-
-      <div class="bg-gradient-to-br from-amber-700 to-amber-900 rounded-2xl p-5 text-white shadow-xl mb-6">
-        <h2 id="custName" class="text-xl font-black mb-2">---</h2>
-        <p id="custAmount" class="font-bold text-lg text-amber-200">₹0 / month</p>
-        <p id="custPhone" class="text-xs opacity-70">----------</p>
-      </div>
-
-      <h3 class="font-bold text-gray-700 text-sm mb-3 uppercase tracking-wide">11-Month Plan Payment Grid</h3>
-      <div id="matrixGrid" class="grid grid-cols-3 gap-3 mb-6"></div>
-
-      <div id="paymentPanel" class="hidden bg-emerald-50 rounded-2xl p-5 border-2 border-emerald-200 shadow-md mb-6">
-        <div class="flex justify-between items-center mb-3">
-          <h4 id="paymentTitle" class="font-bold text-emerald-900 text-sm">Submit Payout Record</h4>
-          <button onclick="document.getElementById('paymentPanel').style.display='none'" class="text-emerald-700 font-bold text-sm">✕</button>
+            <div id="passbookContainer" class="hidden-view space-y-6">
+                <div class="bg-gradient-to-br from-amber-600 to-amber-700 text-white rounded-2xl p-6">
+                    <h3 id="custName" class="text-lg font-bold">-</h3>
+                    <p id="custPhone" class="text-xs opacity-75">-</p>
+                    <div class="mt-4 pt-4 border-t border-white/20 flex justify-between"><span class="text-xs">Monthly contribution</span><span id="custAmount" class="font-bold">₹0</span></div>
+                </div>
+                <div class="bg-white rounded-2xl p-6 border border-gray-100">
+                    <div id="gridWrapper" class="grid grid-cols-4 gap-3"></div>
+                </div>
+            </div>
         </div>
-        
-        <label class="block text-xs font-bold text-emerald-800 mb-1">Option A: Upload Pay Slip Screenshot</label>
-        <input type="file" id="fileInput" accept="image/*" class="w-full text-xs bg-white p-2 rounded-xl border mb-4">
-
-        <div class="text-center text-xs font-bold text-emerald-600 my-2">-- OR --</div>
-
-        <label class="block text-xs font-bold text-emerald-800 mb-1">Option B: Type 12-Digit UTR Number</label>
-        <input type="number" id="utrInput" placeholder="Enter Transaction UTR Code" class="w-full p-3 rounded-xl border mb-4 text-center font-mono">
-
-        <button onclick="processSubmit()" id="submitBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-xl shadow">
-          Upload & Request Approval
-        </button>
-      </div>
     </div>
 
-    <div class="text-center py-4 border-t bg-gray-50">
-      <button onclick="toggleModal(true)" class="text-xs text-amber-700 underline font-bold hover:text-amber-900">
-        Terms & Conditions (नियम और शर्तें देखें)
-      </button>
+    <div id="adminView" class="hidden-view max-w-5xl mx-auto p-6">
+        <header class="flex justify-between items-center border-b border-gray-200 pb-5 mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Jewllz Master Control</h1>
+                <p class="text-xs text-gray-500">Real-time Automated Dashboard</p>
+            </div>
+            <button onclick="loadAdminDashboard()" class="bg-amber-600 text-white text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-amber-700 cursor-pointer">Sync Pending Payments</button>
+        </header>
+
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="text-xs font-semibold text-gray-500 bg-gray-50 border-b border-gray-100">
+                        <th class="p-4">Phone Number</th>
+                        <th class="p-4">Month</th>
+                        <th class="p-4">Amount</th>
+                        <th class="p-4">UTR Reference / Receipt</th>
+                        <th class="p-4 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody" class="divide-y divide-gray-100 text-sm">
+                    <tr><td colspan="5" class="p-8 text-center text-gray-400 italic">Click "Sync Pending Payments" to clear pending logs.</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-  </div>
 
-  <div id="tcModal" class="modal flex items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-      <h3 class="font-black text-gray-900 text-md mb-3 border-b pb-2 uppercase tracking-wide">Scheme Rules Matrix</h3>
-      <div class="text-xs text-gray-600 space-y-2.5 leading-relaxed text-justify">
-        <p><strong>1. Maximum Term Mandates:</strong> This Gold Savings scheme tracks up to an 11-month active matrix cycle, requiring terminal account closures before reaching a 365-day threshold duration timeline from the date of validation.</p>
-        <p><strong>2. Pricing Mechanics:</strong> Value balances are fully recorded in local cash value points. Conversion metrics adjust cleanly against showroom retail collections entirely upon reaching maturity parameters.</p>
-        <p><strong>3. Late Submissions:</strong> Installment payouts must present proper verification logs before calendar benchmarks to retain continuous bonus eligibility flags.</p>
-      </div>
-      <button onclick="toggleModal(false)" class="w-full mt-5 bg-amber-800 hover:bg-amber-900 text-white font-extrabold py-3 rounded-xl shadow transition">
-        I Accept & Close
-      </button>
-    </div>
-  </div>
+    <script>
+        // PASTE YOUR RE-DEPLOYED WEB APP URL HERE
+        const SCRIPT_URL = "YOUR_NEW_DEPLOYED_WEB_APP_URL";
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbw9yIdinyba3sT7Bfrah_Ofih7tY9W5gt2aOa6mXnCU9meLKJ8y-sW1AZAGFiKrhKE0sg/exec"; 
-    let activeCustomer = null, activeMonthSelection = null, monthlyBillAmount = 0;
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('view') === 'admin') {
+                document.getElementById('customerView').classList.add('hidden-view');
+                document.getElementById('adminView').classList.remove('hidden-view');
+                loadAdminDashboard();
+            }
+        });
 
-    function toggleModal(show) { 
-      const modal = document.getElementById('tcModal');
-      if (show) {
-        modal.style.setProperty('display', 'flex', 'important');
-      } else {
-        modal.style.display = 'none';
-      }
-    }
-
-    async function handleLogin() {
-      const phone = document.getElementById('loginPhone').value.trim();
-      const loginBtn = document.getElementById('loginBtn');
-      if(phone.length < 10) { alert("Invalid number."); return; }
-      
-      loginBtn.disabled = true;
-      loginBtn.innerText = "Verifying...";
-
-      try {
-        let res = await fetch(`${API_URL}?action=getData&id=${phone}`);
-        let data = await res.json();
-        if(!data || !data.profile) { 
-          alert("Account Profile Not Found."); 
-          loginBtn.disabled = false;
-          loginBtn.innerText = "Verify Account";
-          return; 
+        function fetchPassbook() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            fetch(`${SCRIPT_URL}?action=getData&id=${phone}`)
+            .then(r => r.json()).then(data => {
+                if(!data.profile) return alert("Record not found.");
+                document.getElementById('passbookContainer').classList.remove('hidden-view');
+                document.getElementById('custName').innerText = data.profile.name;
+                document.getElementById('custPhone').innerText = "+91 " + data.profile.phone;
+                document.getElementById('custAmount').innerText = "₹" + data.profile.monthlyAmount;
+                
+                const grid = document.getElementById('gridWrapper'); grid.innerHTML = "";
+                for (let m = 1; m <= 11; m++) {
+                    const tx = data.transactions.find(t => Number(t.month) === m);
+                    let label = "Unpaid", style = "bg-gray-50 text-gray-400";
+                    if(tx && tx.status === "Paid") { label = "✅ Paid"; style = "bg-emerald-50 text-emerald-700 font-bold"; }
+                    else if(tx && tx.status === "Pending") { label = "⏳ Pending"; style = "bg-amber-50 text-amber-700 animate-pulse"; }
+                    grid.innerHTML += `<div class="p-3 rounded-xl ${style} text-center text-xs"><span class="text-[9px] block opacity-60">M-${m}</span>${label}</div>`;
+                }
+            });
         }
-        activeCustomer = phone;
-        renderDashboard(data);
-      } catch(e) {
-        alert("Verification failed. Please check your data connection.");
-        loginBtn.disabled = false;
-        loginBtn.innerText = "Verify Account";
-      }
-    }
 
-    function renderDashboard(data) {
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('portalScreen').classList.remove('hidden');
-      document.getElementById('custName').innerText = data.profile.name;
-      document.getElementById('custAmount').innerText = "₹" + data.profile.monthlyAmount;
-      document.getElementById('custPhone').innerText = data.profile.phone;
-      monthlyBillAmount = data.profile.monthlyAmount;
-
-      let grid = document.getElementById('matrixGrid'); grid.innerHTML = "";
-      for (let m = 1; m <= 11; m++) {
-        let tx = data.transactions.find(t => t.month == m);
-        let style = "bg-gray-50 border text-gray-400";
-        let label = `Month ${m}<br><span class="text-[9px]">UNPAID</span>`;
-        let act = `onclick="selectMonth(${m})"`;
-
-        if(tx) {
-          if(tx.status === "Paid") { style = "bg-emerald-50 border-2 border-emerald-300 text-emerald-700 font-bold"; label = `Month ${m}<br><span class="text-[9px]">✅ PAID</span>`; act = ""; }
-          else if(tx.status === "Pending") { style = "bg-amber-50 border-2 border-amber-300 text-amber-700 animate-pulse"; label = `Month ${m}<br><span class="text-[9px]">⏳ REVIEW</span>`; act = ""; }
+        function loadAdminDashboard() {
+            const body = document.getElementById('adminTableBody');
+            body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Fetching live requests...</td></tr>`;
+            
+            fetch(`${SCRIPT_URL}?action=getData&id=all_pending`)
+            .then(r => r.json()).then(pendingList => {
+                if(pendingList.length === 0) {
+                    body.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-emerald-600 font-medium">🎉 Great job! No pending verifications left.</td></tr>`;
+                    return;
+                }
+                body.innerHTML = "";
+                pendingList.forEach(item => {
+                    body.innerHTML += `
+                        <tr id="row-${item.row}">
+                            <td class="p-4 font-medium">${item.phone}</td>
+                            <td class="p-4">Month ${item.month}</td>
+                            <td class="p-4 font-semibold">₹${item.amount}</td>
+                            <td class="p-4 text-xs text-gray-500">
+                                <div>UTR: ${item.utr}</div>
+                                ${item.screenshot ? `<a href="${item.screenshot}" target="_blank" class="text-amber-600 underline font-medium block mt-1">View Slip Receipt ↗</a>` : ''}
+                            </td>
+                            <td class="p-4 text-center">
+                                <button onclick="executeApproval(${item.row})" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-md hover:bg-emerald-700 font-medium transition-all cursor-pointer">Approve Instantly</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
         }
-        grid.innerHTML += `<div ${act} class="p-4 text-center rounded-2xl cursor-pointer ${style}">${label}</div>`;
-      }
-    }
 
-    function selectMonth(m) { activeMonthSelection = m; document.getElementById('paymentPanel').style.display = 'block'; }
+        function executeApproval(rowId) {
+            if(!confirm("Are you sure you want to approve this transaction?")) return;
+            const rowEl = document.getElementById(`row-${rowId}`);
+            rowEl.style.opacity = "0.4";
 
-    function processSubmit() {
-      const fileInput = document.getElementById('fileInput').files[0];
-      const utr = document.getElementById('utrInput').value.trim();
-      const submitBtn = document.getElementById('submitBtn');
-
-      if (!fileInput && !utr) { alert("Please upload a screenshot or enter a UTR string sequence."); return; }
-      
-      submitBtn.disabled = true;
-      submitBtn.innerText = "Processing Data Upload...";
-
-      if (fileInput) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          executeServerPush(utr, e.target.result, fileInput.name);
-        };
-        reader.readAsDataURL(fileInput);
-      } else {
-        executeServerPush(utr, null, null);
-      }
-    }
-
-    async function executeServerPush(utr, fileData, fileName) {
-      let payload = {
-        action: "submit", id: activeCustomer, month: activeMonthSelection,
-        amount: monthlyBillAmount, utr: utr, fileData: fileData, fileName: fileName
-      };
-      
-      let res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
-      let status = await res.json();
-      if(status) {
-        alert("Payment logged for Admin Verification panel view!");
-        document.getElementById('paymentPanel').style.display = 'none';
-        handleLogin();
-      }
-    }
-
-    function logout() { location.reload(); }
-  </script>
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "approve", row: rowId })
+            }).then(r => r.json()).then(success => {
+                if(success) {
+                    rowEl.remove();
+                    alert("Transaction updated to PAID successfully inside Google Sheets!");
+                }
+            });
+        }
+    </script>
 </body>
 </html>
