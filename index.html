@@ -67,7 +67,7 @@
                     <li><strong>Strict Deadline:</strong> Payment is mandatory every single month. Deadlines must be met to keep the bonus eligibility intact.</li>
                     <li><strong>Verification Proof:</strong> Providing a valid 12-digit UTR code or screenshot proof is mandatory for every transaction. Unauthorized or duplicate UTR entries will result in automated rejection.</li>
                     <li><strong>No Mid-way Cash Withdrawals:</strong> The accumulated amount can only be redeemed at the completion of the tenure via final invoice settlement.</li>
-                    <li><strong>Premature Cash-Out Penalty:</strong> Hard cash withdrawals are strictly prohibited. If premature withdrawal is permitted under special circumstances, a deduction of **10% to 20%** will be levied directly against your calculated available ledger balance.</li>
+                    <li><strong>Premature Cash-Out Penalty:</strong> Hard cash withdrawals are strictly prohibited. If premature withdrawal is permitted under special circumstances, a deduction of 10% to 20% will be levied directly against your calculated available ledger balance.</li>
                 </ul>
             </div>
         </div>
@@ -154,7 +154,6 @@
     </div>
 
     <script>
-        // Connected to your active web app script deployment
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwf2MDrH01ACC4tv7MTxNYrfFU5GAlaQHpy-qqoqbQfV20ydzb5OIGWwVmSrdZXXlCbrA/exec";
 
         let currentSelectedMonth = null;
@@ -188,6 +187,7 @@
             }
         }
 
+        // ... Keep logoutAdmin and fetchPassbook functions exactly identical ...
         function logoutAdmin() {
             sessionStorage.removeItem('adminAuthenticated');
             window.location.search = ""; 
@@ -216,7 +216,6 @@
                 document.getElementById('custPhone').innerText = "+91 " + data.profile.phone;
                 document.getElementById('custAmount').innerText = "₹" + data.profile.monthlyAmount;
                 
-                // Process running calculations for active ledger sheets
                 let paidMonthsCount = 0;
                 data.transactions.forEach(t => {
                     if (t.status === "Paid" && Number(t.month) <= 11) {
@@ -246,7 +245,6 @@
                     grid.innerHTML += `<div ${actionStr} class="p-3 rounded-xl ${style} text-center text-xs"><span class="text-[9px] block opacity-60 text-gray-400">M-${m}</span>${label}</div>`;
                 }
 
-                // Inject 11+1 Bonus milestone grid track row
                 if (paidMonthsCount === 11) {
                     grid.innerHTML += `
                         <div class="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white font-bold text-center text-xs col-span-4 border border-amber-400 shadow-xs animate-bounce mt-1">
@@ -274,6 +272,7 @@
             document.getElementById('paymentModal').classList.add('hidden-view');
         }
 
+        // ALTERNATIVE RESOLUTION ENGINE: Client-side Ultra-compression directly to App Script safe payload array
         function submitPaymentData() {
             const utr = document.getElementById('utrInput').value.trim();
             const fileBox = document.getElementById('fileInput').files[0];
@@ -281,38 +280,44 @@
             if(!utr && !fileBox) return alert("Please provide either a UTR code or upload a receipt screenshot.");
             
             const submitPayBtn = document.getElementById('submitPayBtn');
-            submitPayBtn.innerText = "Uploading Image Link...";
+            submitPayBtn.innerText = "Optimizing Image Size...";
             submitPayBtn.disabled = true;
 
             if (fileBox) {
-                const formData = new FormData();
-                formData.append("image", fileBox);
-                formData.append("key", "6d207e02198a847e39c4a30a5c4d44f3"); 
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        
+                        // Shrink to dimensions that maintain clear UTR visibility but drop payload size under ~50kb
+                        const MAX_WIDTH = 450; 
+                        let width = img.width;
+                        let height = img.height;
 
-                fetch("https://freeimage.host/api/1/upload", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(res => res.json())
-                .then(jsonResponse => {
-                    if(jsonResponse && jsonResponse.image && jsonResponse.image.url) {
-                        const generatedImageUrl = jsonResponse.image.url;
-                        executePostSubmission(utr, generatedImageUrl);
-                    } else {
-                        throw new Error("API specification changed");
-                    }
-                })
-                .catch(err => {
-                    // Safe structural fallback: processes transaction via UTR path if the CDN is congested
-                    console.log("CDN congested, executing safe failover track.");
-                    executePostSubmission(utr + " (Receipt Attached via Fallback)", "");
-                });
+                        if (width > MAX_WIDTH) {
+                            height = Math.round((height * MAX_WIDTH) / width);
+                            width = MAX_WIDTH;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Compress drastically using lightweight inline formats
+                        const lowResBase64 = canvas.toDataURL('image/jpeg', 0.5);
+                        executePostSubmission(utr, lowResBase64);
+                    };
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(fileBox);
             } else {
                 executePostSubmission(utr, "");
             }
         }
 
-        function executePostSubmission(utrCode, imageUrlStr) {
+        function executePostSubmission(utrCode, embeddedBase64Str) {
             const submitPayBtn = document.getElementById('submitPayBtn');
             submitPayBtn.innerText = "Updating Ledger...";
             
@@ -322,7 +327,7 @@
                 month: currentSelectedMonth,
                 amount: globalMonthlyAmount,
                 utr: utrCode,
-                screenshotUrl: imageUrlStr
+                screenshotUrl: embeddedBase64Str // Direct payload transmission without domain redirects
             };
 
             fetch(SCRIPT_URL, {
@@ -337,8 +342,7 @@
             }).catch(e => {
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
-                alert("Upload successfully processed!");
-                fetchPassbook();
+                alert("Submission timed out.");
             });
         }
 
@@ -355,6 +359,14 @@
                 body.innerHTML = "";
                 pendingList.forEach(item => {
                     const slipSrc = item.screenshotUrl || item.screenshot || "";
+                    
+                    // Detect if file asset is an inline canvas base64 object or normal URL link
+                    const isInline = slipSrc.startsWith("data:image");
+                    const linkMarkup = isInline 
+                        ? `<button onclick="viewEmbeddedReceipt('${item.row}')" class="text-amber-600 underline font-medium block mt-1">View Native Image ↗</button>
+                           <div id="hidden-img-${item.row}" class="hidden-view mt-2 max-w-xs border border-gray-200 p-1 bg-white rounded-lg"><img src="${slipSrc}" class="w-full h-auto"></div>`
+                        : `<a href="${slipSrc}" target="_blank" class="text-amber-600 underline font-medium block mt-1">View Slip Receipt ↗</a>`;
+
                     body.innerHTML += `
                         <tr id="row-${item.row}">
                             <td class="p-4 font-medium">${item.phone}</td>
@@ -362,7 +374,7 @@
                             <td class="p-4 font-semibold">₹${item.amount}</td>
                             <td class="p-4 text-xs text-gray-500">
                                 <div>UTR: ${item.utr}</div>
-                                ${slipSrc ? `<a href="${slipSrc}" target="_blank" class="text-amber-600 underline font-medium block mt-1">View Slip Receipt ↗</a>` : ''}
+                                ${slipSrc ? linkMarkup : ''}
                             </td>
                             <td class="p-4 text-center">
                                 <button onclick="executeApproval(${item.row})" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-md hover:bg-emerald-700 font-medium transition-all cursor-pointer">Approve Instantly</button>
@@ -371,6 +383,15 @@
                     `;
                 });
             });
+        }
+
+        function viewEmbeddedReceipt(rowId) {
+            const box = document.getElementById(`hidden-img-${rowId}`);
+            if(box.classList.contains('hidden-view')) {
+                box.classList.remove('hidden-view');
+            } else {
+                box.classList.add('hidden-view');
+            }
         }
 
         function executeApproval(rowId) {
