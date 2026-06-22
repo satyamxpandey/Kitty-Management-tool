@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automated Passbook Ledger & Master Dashboard</title>
+    <title>OFBUZZ Auto-Passbook & Master Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         .hidden-view { display: none !important; }
@@ -14,7 +14,7 @@
     <div id="customerView" class="max-w-md mx-auto min-h-screen p-4 flex flex-col justify-between">
         <div>
             <header class="text-center py-6">
-                <h1 id="brandTitle" class="text-2xl font-bold text-amber-600 tracking-tight">KITTY SYSTEM</h1>
+                <h1 class="text-2xl font-bold text-amber-600 tracking-tight">OFBUZZ KITTY SYSTEM</h1>
                 <p class="text-xs text-gray-400 uppercase tracking-widest mt-1">Live Passbook Ledger</p>
             </header>
 
@@ -52,22 +52,22 @@
                         <h4 class="text-xs font-bold text-gray-800">Facing issues with payments?</h4>
                         <p class="text-[11px] text-gray-400 mt-0.5">Get instant verification or payment support</p>
                     </div>
-                    <a id="supportLink" href="#" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1 transition-all cursor-pointer shadow-xs">
+                    <a href="https://wa.me/917827201014?text=Hello%20OFBUZZ,%20I%20am%20facing%20an%20issue%20with%20my%20Kitty%20payment." target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1 transition-all cursor-pointer shadow-xs">
                         Contact Support
                     </a>
                 </div>
             </div>
 
             <div class="mt-8 bg-amber-50/50 border border-amber-100 rounded-2xl p-5 space-y-3">
-                <h4 id="termsHeading" class="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
-                    ⚠️ Terms & Conditions
+                <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+                    ⚠️ Terms & Conditions (11+1 Scheme)
                 </h4>
                 <ul class="text-[11.5px] text-amber-900/80 space-y-2 list-disc pl-4 leading-relaxed">
-                    <li id="ruleScheme">Pay regularly for consecutive months based on plan parameters.</li>
+                    <li><strong>11+1 Bonus Structure:</strong> Pay regularly for 11 consecutive months, and the 12th month's contribution will be topped up entirely by us.</li>
                     <li><strong>Strict Deadline:</strong> Payment is mandatory every single month. Deadlines must be met to keep the bonus eligibility intact.</li>
-                    <li><strong>Verification Proof:</strong> Providing a valid 12-digit UTR code or screenshot proof is mandatory for every transaction. Unauthorized entries will result in automated rejection.</li>
-                    <li id="ruleRedemption">The accumulated amount can only be redeemed at the completion of the tenure via final jewelry purchase.</li>
-                    <li id="rulePenalty">Hard cash withdrawals are strictly prohibited. If premature withdrawal is permitted under special circumstances, a deduction penalty will be levied directly against your calculated available ledger balance.</li>
+                    <li><strong>Verification Proof:</strong> Providing a valid 12-digit UTR code or screenshot proof is mandatory for every transaction. Unauthorized or duplicate UTR entries will result in automated rejection.</li>
+                    <li><strong>No Mid-way Cash Withdrawals:</strong> The accumulated amount can only be redeemed at the completion of the tenure via final invoice settlement.</li>
+                    <li><strong>Premature Cash-Out Penalty:</strong> Hard cash withdrawals are strictly prohibited. If premature withdrawal is permitted under special circumstances, a deduction of 10% to 20% will be levied directly against your calculated available ledger balance.</li>
                 </ul>
             </div>
         </div>
@@ -96,7 +96,7 @@
     <div id="adminView" class="hidden-view max-w-5xl mx-auto p-6">
         <header class="flex justify-between items-center border-b border-gray-200 pb-5 mb-6">
             <div>
-                <h1 id="adminPanelTitle" class="text-2xl font-bold text-gray-900">Master Control</h1>
+                <h1 class="text-2xl font-bold text-gray-900">OFBUZZ Master Control</h1>
                 <p class="text-xs text-gray-500">Real-time Automated Dashboard</p>
             </div>
             <div class="flex gap-2">
@@ -131,7 +131,7 @@
             <div class="bg-gray-50 rounded-xl p-4 border border-gray-200/60 flex flex-col items-center justify-center mb-4">
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Scan QR code to pay via UPI</p>
                 <div class="w-40 h-40 bg-white p-2 rounded-lg border border-gray-100 shadow-xs flex items-center justify-center">
-                    <img id="qrCodeImg" src="" alt="UPI Payment QR Code" class="w-full h-full object-contain">
+                    <img src="https://i.pinimg.com/736x/28/7a/e0/287ae0f11b40439e812fc94dfc3a5dc3.jpg" alt="UPI Payment QR Code" class="w-full h-full object-contain">
                 </div>
             </div>
 
@@ -154,44 +154,14 @@
     </div>
 
     <script>
-        // ==========================================
-        // CENTRALIZED CLIENT MONETIZATION REGISTRY
-        // ==========================================
-        const SHOP_DATABASES = {
-            "vachya": {
-                name: "VACHYA JEWELS",
-                scriptUrl: "https://script.google.com/macros/s/AKfycbzIdXocoJEESKpHenKApX64bfpku1ZT7ovctnrpQMJN8F2B-x6OyK64XJF8ArXmrGIi/exec",
-                qrCode: "https://i.pinimg.com/736x/2d/a4/df/2da4dfccde5c68b3229af5f07db8fb01.jpg",
-                whatsapp: "919811396269",
-                schemeMonths: 11,
-                bonusText: "11+1 Bonus Structure: Pay regularly for 11 consecutive months, and the 12th month's contribution will be topped up entirely by us.",
-                redemptionText: "Product Restrictions: You cannot buy Gold Coins, Bars, Ginni, or Fine Gold. This scheme is exclusively valid for purchasing Diamond or Gold Jewellery.",
-                penaltyText: "Premature Cash-Out Penalty: Hard cash withdrawals are strictly prohibited. If premature withdrawal is permitted under special circumstances, a deduction of 10% will be levied directly against your calculated available ledger balance."
-            }
-            // ONBOARD NEXT CLIENTS HERE (client2, client3...) WITHOUT CHANGING THE SYSTEM CODE below
-        };
-
-        // Auto-routing Parameter Mapping Engine
-        const urlParams = new URLSearchParams(window.location.search);
-        const shopKey = urlParams.get('shop') || 'vachya'; // Defaults to vachya if no parameter string exists
-        const config = SHOP_DATABASES[shopKey] || SHOP_DATABASES["vachya"];
-
-        // Set Configuration Paths
-        const SCRIPT_URL = config.scriptUrl;
-        document.title = `${config.name} - Auto-Passbook & Master Control`;
-        document.getElementById('brandTitle').innerText = config.name;
-        document.getElementById('adminPanelTitle').innerText = `${config.name} Master Control`;
-        document.getElementById('qrCodeImg').src = config.qrCode;
-        document.getElementById('supportLink').href = `https://wa.me/${config.whatsapp}?text=Hello%20${encodeURIComponent(config.name)},%20I%20am%20facing%20an%20issue%20with%20my%20Kitty%20payment.`;
-        document.getElementById('ruleScheme').innerHTML = `<strong>${config.bonusText}</strong>`;
-        document.getElementById('ruleRedemption').innerHTML = `<strong>${config.redemptionText}</strong>`;
-        document.getElementById('rulePenalty').innerHTML = `<strong>${config.penaltyText}</strong>`;
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwf2MDrH01ACC4tv7MTxNYrfFU5GAlaQHpy-qqoqbQfV20ydzb5OIGWwVmSrdZXXlCbrA/exec";
 
         let currentSelectedMonth = null;
         let globalCustomerPhone = null;
         let globalMonthlyAmount = 0;
 
         window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('view') === 'admin') {
                 document.getElementById('customerView').classList.add('hidden-view');
                 if (sessionStorage.getItem('adminAuthenticated') === 'true') {
@@ -217,9 +187,10 @@
             }
         }
 
+        // ... Keep logoutAdmin and fetchPassbook functions exactly identical ...
         function logoutAdmin() {
             sessionStorage.removeItem('adminAuthenticated');
-            window.location.search = `?shop=${shopKey}`; 
+            window.location.search = ""; 
         }
 
         function fetchPassbook() {
@@ -247,7 +218,7 @@
                 
                 let paidMonthsCount = 0;
                 data.transactions.forEach(t => {
-                    if (t.status === "Paid" && Number(t.month) <= config.schemeMonths) {
+                    if (t.status === "Paid" && Number(t.month) <= 11) {
                         paidMonthsCount++;
                     }
                 });
@@ -256,7 +227,7 @@
 
                 const grid = document.getElementById('gridWrapper'); grid.innerHTML = "";
                 
-                for (let m = 1; m <= config.schemeMonths; m++) {
+                for (let m = 1; m <= 11; m++) {
                     const tx = data.transactions.find(t => Number(t.month) === m);
                     let label = "Tap to Pay", style = "bg-gray-50 border border-gray-200 text-amber-600 font-medium cursor-pointer hover:bg-amber-50/50 transition-all";
                     let actionStr = `onclick="openPaymentModal(${m})"`;
@@ -274,10 +245,10 @@
                     grid.innerHTML += `<div ${actionStr} class="p-3 rounded-xl ${style} text-center text-xs"><span class="text-[9px] block opacity-60 text-gray-400">M-${m}</span>${label}</div>`;
                 }
 
-                if (paidMonthsCount === config.schemeMonths) {
+                if (paidMonthsCount === 11) {
                     grid.innerHTML += `
                         <div class="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white font-bold text-center text-xs col-span-4 border border-amber-400 shadow-xs animate-bounce mt-1">
-                            <span class="text-[9px] block uppercase opacity-80 tracking-wider">M-${config.schemeMonths + 1} Bonus Earned</span>
+                            <span class="text-[9px] block uppercase opacity-80 tracking-wider">M-12 Bonus Earned</span>
                             🎉 +1 Payout Confirmed!
                         </div>
                     `;
@@ -301,6 +272,7 @@
             document.getElementById('paymentModal').classList.add('hidden-view');
         }
 
+        // ALTERNATIVE RESOLUTION ENGINE: Client-side Ultra-compression directly to App Script safe payload array
         function submitPaymentData() {
             const utr = document.getElementById('utrInput').value.trim();
             const fileBox = document.getElementById('fileInput').files[0];
@@ -317,6 +289,8 @@
                     const img = new Image();
                     img.onload = function() {
                         const canvas = document.createElement('canvas');
+                        
+                        // Shrink to dimensions that maintain clear UTR visibility but drop payload size under ~50kb
                         const MAX_WIDTH = 450; 
                         let width = img.width;
                         let height = img.height;
@@ -331,6 +305,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
 
+                        // Compress drastically using lightweight inline formats
                         const lowResBase64 = canvas.toDataURL('image/jpeg', 0.5);
                         executePostSubmission(utr, lowResBase64);
                     };
@@ -352,7 +327,7 @@
                 month: currentSelectedMonth,
                 amount: globalMonthlyAmount,
                 utr: utrCode,
-                screenshotUrl: embeddedBase64Str
+                screenshotUrl: embeddedBase64Str // Direct payload transmission without domain redirects
             };
 
             fetch(SCRIPT_URL, {
@@ -367,8 +342,7 @@
             }).catch(e => {
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
-                alert("Upload successfully processed!");
-                fetchPassbook();
+                alert("Submission timed out.");
             });
         }
 
@@ -385,6 +359,8 @@
                 body.innerHTML = "";
                 pendingList.forEach(item => {
                     const slipSrc = item.screenshotUrl || item.screenshot || "";
+                    
+                    // Detect if file asset is an inline canvas base64 object or normal URL link
                     const isInline = slipSrc.startsWith("data:image");
                     const linkMarkup = isInline 
                         ? `<button onclick="viewEmbeddedReceipt('${item.row}')" class="text-amber-600 underline font-medium block mt-1">View Native Image ↗</button>
@@ -411,10 +387,13 @@
 
         function viewEmbeddedReceipt(rowId) {
             const box = document.getElementById(`hidden-img-${rowId}`);
-            box.classList.toggle('hidden-view');
+            if(box.classList.contains('hidden-view')) {
+                box.classList.remove('hidden-view');
+            } else {
+                box.classList.add('hidden-view');
+            }
         }
 
-        // Overwrite status cells directly inside active rows
         function executeApproval(rowId) {
             if(!confirm("Are you sure you want to approve this transaction?")) return;
             const rowEl = document.getElementById(`row-${rowId}`);
