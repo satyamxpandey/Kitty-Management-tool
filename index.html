@@ -100,11 +100,18 @@
         </div>
     </div>
 
-    <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+    <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl my-auto">
             <h3 class="text-lg font-bold text-gray-900 mb-1">Submit Payment</h3>
             <p id="modalMonthTarget" class="text-xs text-amber-600 font-semibold mb-4">Month 2 Tracker</p>
             
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200/60 flex flex-col items-center justify-center mb-4">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Scan QR code to pay via UPI</p>
+                <div class="w-40 h-40 bg-white p-2 rounded-lg border border-gray-100 shadow-xs flex items-center justify-center">
+                    <img src="https://i.pinimg.com/736x/28/7a/e0/287ae0f11b40439e812fc94dfc3a5dc3.jpg" alt="UPI Payment QR Code" class="w-full h-full object-contain">
+                </div>
+            </div>
+
             <div class="space-y-3 mb-5">
                 <div>
                     <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">UTR / Transaction ID</label>
@@ -130,13 +137,10 @@
         let globalCustomerPhone = null;
         let globalMonthlyAmount = 0;
 
-        // Routing logic to handle deep links and login protection
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('view') === 'admin') {
                 document.getElementById('customerView').classList.add('hidden-view');
-                
-                // Check if session flag exists to skip log-in on refresh
                 if (sessionStorage.getItem('adminAuthenticated') === 'true') {
                     document.getElementById('adminView').classList.remove('hidden-view');
                     loadAdminDashboard();
@@ -146,7 +150,6 @@
             }
         });
 
-        // Simple auth handler
         function handleAdminLogin() {
             const user = document.getElementById('adminUser').value.trim();
             const pass = document.getElementById('adminPass').value.trim();
@@ -163,7 +166,7 @@
 
         function logoutAdmin() {
             sessionStorage.removeItem('adminAuthenticated');
-            window.location.search = ""; // Refresh back to customer view safely
+            window.location.search = ""; 
         }
 
         function fetchPassbook() {
@@ -247,7 +250,6 @@
             }
         }
 
-        // Handles client-side scaling and quality reduction to resolve memory/time-out limit loops
         function compressAndSubmit(base64Str, fileNameStr, utrCode) {
             const img = new Image();
             img.src = base64Str;
