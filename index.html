@@ -154,9 +154,10 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc4D1Hq2sf6z5MOEVhJLW1jHGuur10ZNROO-giDYNznTNILqxatg1LpZqmTHjtmvKAsQ/exec";
+        // Updated with your clean, live deployment macro target
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwf2MDrH01ACC4tv7MTxNYrfFU5GAlaQHpy-qqoqbQfV20ydzb5OIGWwVmSrdZXXlCbrA/exec";
         
-        // Public high-speed image hosting API engine (Free tiered key)
+        // High-speed image CDN gateway configurations
         const IMGBB_API_KEY = "69df7f2940280eb4c7cdbdf24040f7d2";
 
         let currentSelectedMonth = null;
@@ -218,6 +219,7 @@
                 document.getElementById('custPhone').innerText = "+91 " + data.profile.phone;
                 document.getElementById('custAmount').innerText = "₹" + data.profile.monthlyAmount;
                 
+                // Real-time live balance ledger math calculations
                 let paidMonthsCount = 0;
                 data.transactions.forEach(t => {
                     if (t.status === "Paid" && Number(t.month) <= 11) {
@@ -247,6 +249,7 @@
                     grid.innerHTML += `<div ${actionStr} class="p-3 rounded-xl ${style} text-center text-xs"><span class="text-[9px] block opacity-60 text-gray-400">M-${m}</span>${label}</div>`;
                 }
 
+                // Append the +1 Bonus layout element dynamically once 11 valid milestones clear
                 if (paidMonthsCount === 11) {
                     grid.innerHTML += `
                         <div class="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white font-bold text-center text-xs col-span-4 border border-amber-400 shadow-xs animate-bounce mt-1">
@@ -281,11 +284,11 @@
             if(!utr && !fileBox) return alert("Please provide either a UTR code or upload a receipt screenshot.");
             
             const submitPayBtn = document.getElementById('submitPayBtn');
-            submitPayBtn.innerText = "Uploading Image link...";
+            submitPayBtn.innerText = "Uploading Image Link...";
             submitPayBtn.disabled = true;
 
             if (fileBox) {
-                // Instantly bundle file bytes as multipart structure to push straight out to an image engine
+                // Route multipart form arrays cleanly to ImgBB to completely bypass Apps Script timeout restrictions
                 const formData = new FormData();
                 formData.append("image", fileBox);
 
@@ -297,7 +300,6 @@
                 .then(jsonResponse => {
                     if(jsonResponse.success && jsonResponse.data && jsonResponse.data.url) {
                         const generatedImageUrl = jsonResponse.data.url;
-                        // Successfully converted! Forwarding pure url text back to gas backend
                         executePostSubmission(utr, generatedImageUrl);
                     } else {
                         throw new Error("CDN rejection error");
@@ -306,7 +308,7 @@
                 .catch(err => {
                     submitPayBtn.innerText = "Submit Proof";
                     submitPayBtn.disabled = false;
-                    alert("Image server rejected file. Please check file type or connection.");
+                    alert("Image server rejected file. Please try again or check connection.");
                 });
             } else {
                 executePostSubmission(utr, "");
@@ -323,7 +325,7 @@
                 month: currentSelectedMonth,
                 amount: globalMonthlyAmount,
                 utr: utrCode,
-                screenshotUrl: imageUrlStr // Send clean hosted web url straight out to sheet cell
+                screenshotUrl: imageUrlStr
             };
 
             fetch(SCRIPT_URL, {
@@ -355,7 +357,6 @@
                 }
                 body.innerHTML = "";
                 pendingList.forEach(item => {
-                    // Normalize standard string values coming back out of database structures
                     const slipSrc = item.screenshotUrl || item.screenshot || "";
                     body.innerHTML += `
                         <tr id="row-${item.row}">
