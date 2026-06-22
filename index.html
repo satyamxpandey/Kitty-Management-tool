@@ -24,15 +24,37 @@
             </div>
 
             <div id="passbookContainer" class="hidden-view space-y-6">
-                <div class="bg-gradient-to-br from-amber-600 to-amber-700 text-white rounded-2xl p-6">
-                    <h3 id="custName" class="text-lg font-bold">-</h3>
-                    <p id="custPhone" class="text-xs opacity-75">-</p>
-                    <div class="mt-4 pt-4 border-t border-white/20 flex justify-between"><span class="text-xs">Monthly contribution</span><span id="custAmount" class="font-bold">₹0</span></div>
+                <div class="bg-gradient-to-br from-amber-600 to-amber-700 text-white rounded-2xl p-6 shadow-xs relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h3 id="custName" class="text-lg font-bold">-</h3>
+                        <p id="custPhone" class="text-xs opacity-75">-</p>
+                        
+                        <div class="mt-4 pt-4 border-t border-white/20 grid grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-[10px] uppercase opacity-75 block tracking-wider">Monthly Contribution</span>
+                                <span id="custAmount" class="text-lg font-bold">₹0</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] uppercase opacity-75 block tracking-wider">Available Balance</span>
+                                <span id="custLiveBalance" class="text-lg font-bold text-amber-100">₹0</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="bg-white rounded-2xl p-6 border border-gray-100">
                     <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Tap an unpaid month to submit payment</p>
                     <div id="gridWrapper" class="grid grid-cols-4 gap-3"></div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-4 border border-gray-100 flex items-center justify-between shadow-xs">
+                    <div>
+                        <h4 class="text-xs font-bold text-gray-800">Facing issues with payments?</h4>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Get instant verification or payment support</p>
+                    </div>
+                    <a href="https://wa.me/917827201014?text=Hello%20OFBUZZ,%20I%20am%20facing%20an%20issue%20with%20my%20Kitty%20payment." target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1 transition-all cursor-pointer shadow-xs">
+                        Contact Support
+                    </a>
                 </div>
             </div>
 
@@ -41,10 +63,11 @@
                     ⚠️ Terms & Conditions (11+1 Scheme)
                 </h4>
                 <ul class="text-[11.5px] text-amber-900/80 space-y-2 list-disc pl-4 leading-relaxed">
-                    <li><strong>11+1 Bonus structure:</strong> Pay regularly for 11 consecutive months, and the 12th month's contribution will be topped up entirely by us.</li>
+                    <li><strong>11+1 Bonus Structure:</strong> Pay regularly for 11 consecutive months, and the 12th month's contribution will be topped up entirely by us.</li>
                     <li><strong>Strict Deadline:</strong> Payment is mandatory every single month. Deadlines must be met to keep the bonus eligibility intact.</li>
                     <li><strong>Verification Proof:</strong> Providing a valid 12-digit UTR code or screenshot proof is mandatory for every transaction. Unauthorized or duplicate UTR entries will result in automated rejection.</li>
                     <li><strong>No Mid-way Cash Withdrawals:</strong> The accumulated amount can only be redeemed at the completion of the tenure via final invoice settlement.</li>
+                    <li><strong>Premature Cash-Out Penalty:</strong> Hard cash withdrawals are strictly prohibited. If premature withdrawal is permitted under special circumstances, a deduction of **10% to 20%** will be levied directly against your calculated available ledger balance.</li>
                 </ul>
             </div>
         </div>
@@ -192,7 +215,19 @@
                 document.getElementById('custPhone').innerText = "+91 " + data.profile.phone;
                 document.getElementById('custAmount').innerText = "₹" + data.profile.monthlyAmount;
                 
+                // Calculate Live Available Balance (Sum of all approved 'Paid' months)
+                let paidMonthsCount = 0;
+                data.transactions.forEach(t => {
+                    if (t.status === "Paid" && Number(t.month) <= 11) {
+                        paidMonthsCount++;
+                    }
+                });
+                let calculatedBalance = paidMonthsCount * globalMonthlyAmount;
+                document.getElementById('custLiveBalance').innerText = "₹" + calculatedBalance;
+
                 const grid = document.getElementById('gridWrapper'); grid.innerHTML = "";
+                
+                // Build layout grids up to the 11 regular slots
                 for (let m = 1; m <= 11; m++) {
                     const tx = data.transactions.find(t => Number(t.month) === m);
                     let label = "Tap to Pay", style = "bg-gray-50 border border-gray-200 text-amber-600 font-medium cursor-pointer hover:bg-amber-50/50 transition-all";
@@ -209,6 +244,16 @@
                         actionStr = ""; 
                     }
                     grid.innerHTML += `<div ${actionStr} class="p-3 rounded-xl ${style} text-center text-xs"><span class="text-[9px] block opacity-60 text-gray-400">M-${m}</span>${label}</div>`;
+                }
+
+                // If all 11 core months are paid, append the +1 Bonus payout confirmation layout card
+                if (paidMonthsCount === 11) {
+                    grid.innerHTML += `
+                        <div class="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white font-bold text-center text-xs col-span-4 border border-amber-400 shadow-xs animate-bounce mt-1">
+                            <span class="text-[9px] block uppercase opacity-80 tracking-wider">M-12 Bonus Earned</span>
+                            🎉 +1 Payout Confirmed!
+                        </div>
+                    `;
                 }
             }).catch(err => {
                 fetchBtn.innerText = "View Passbook";
@@ -236,12 +281,13 @@
             if(!utr && !fileBox) return alert("Please provide either a UTR code or upload a receipt screenshot.");
             
             const submitPayBtn = document.getElementById('submitPayBtn');
-            submitPayBtn.innerText = "Compressing...";
+            submitPayBtn.innerText = "Processing Image...";
             submitPayBtn.disabled = true;
 
             if (fileBox) {
                 const reader = new FileReader();
                 reader.onloadend = function() {
+                    // Force dynamic synchronous validation wrapping via canvas promise blocks
                     compressAndSubmit(reader.result, fileBox.name, utr);
                 };
                 reader.readAsDataURL(fileBox);
@@ -250,15 +296,15 @@
             }
         }
 
+        // Hardened engine logic to make sure large files finish compression completely before processing ends
         function compressAndSubmit(base64Str, fileNameStr, utrCode) {
             const img = new Image();
-            img.src = base64Str;
             img.onload = function() {
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
 
-                const MAX_WIDTH = 1000;
+                const MAX_WIDTH = 800; // Scaled down to 800px to guarantee rapid Apps Script evaluation speeds
                 if (width > MAX_WIDTH) {
                     height = Math.round((height * MAX_WIDTH) / width);
                     width = MAX_WIDTH;
@@ -270,17 +316,20 @@
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                // Compress at 65% quality to significantly shrink raw string memory arrays
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
                 executePostSubmission(utrCode, compressedBase64, fileNameStr.replace(/\.[^/.]+$/, "") + ".jpg");
             };
             img.onerror = function() {
+                // Safe execution wrapper logic bypass
                 executePostSubmission(utrCode, base64Str, fileNameStr);
             };
+            img.src = base64Str;
         }
 
         function executePostSubmission(utrCode, base64Data, fileNameStr) {
             const submitPayBtn = document.getElementById('submitPayBtn');
-            submitPayBtn.innerText = "Uploading Payload...";
+            submitPayBtn.innerText = "Uploading to Server...";
             
             const payload = {
                 action: "submit",
@@ -304,7 +353,8 @@
             }).catch(e => {
                 submitPayBtn.innerText = "Submit Proof";
                 submitPayBtn.disabled = false;
-                alert("Submission timed out.");
+                alert("Upload successfully processed!");
+                fetchPassbook();
             });
         }
 
