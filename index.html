@@ -36,27 +36,36 @@
                 </div>
             </div>
 
-            <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
-                    <h3 class="text-lg font-bold text-gray-900 mb-1">Submit Payment</h3>
-                    <p id="modalMonthTarget" class="text-xs text-amber-600 font-semibold mb-4">Month 2 Tracker</p>
-                    
-                    <div class="space-y-3 mb-5">
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">UTR / Transaction ID</label>
-                            <input type="text" id="utrInput" placeholder="Enter 12-digit UTR Code" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500">
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Payment Slip Screenshot</label>
-                            <input type="file" id="fileInput" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
-                        </div>
-                    </div>
+            <div class="mt-8 bg-amber-50/50 border border-amber-100 rounded-2xl p-5 space-y-3">
+                <h4 class="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+                    ⚠️ Terms & Conditions (11+1 Scheme)
+                </h4>
+                <ul class="text-[11.5px] text-amber-900/80 space-y-2 list-disc pl-4 leading-relaxed">
+                    <li><strong>11+1 Bonus structure:</strong> Pay regularly for 11 consecutive months, and the 12th month's contribution will be topped up entirely by us.</li>
+                    <li><strong>Strict Deadline:</strong> Payment is mandatory every single month. Deadlines must be met to keep the bonus eligibility intact.</li>
+                    <li><strong>Verification Proof:</strong> Providing a valid 12-digit UTR code or screenshot proof is mandatory for every transaction. Unauthorized or duplicate UTR entries will result in automated rejection.</li>
+                    <li><strong>No Mid-way Cash Withdrawals:</strong> The accumulated amount can only be redeemed at the completion of the tenure via final invoice settlement.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-                    <div class="flex gap-2">
-                        <button onclick="closePaymentModal()" class="w-1/2 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 cursor-pointer">Cancel</button>
-                        <button onclick="submitPaymentData()" id="submitPayBtn" class="w-1/2 bg-amber-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-amber-700 cursor-pointer">Submit Proof</button>
-                    </div>
+    <div id="adminLoginView" class="hidden-view max-w-sm mx-auto min-h-screen flex flex-col justify-center p-4">
+        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+            <div class="text-center mb-6">
+                <h2 class="text-xl font-bold text-gray-900">Master Authentication</h2>
+                <p class="text-xs text-gray-400 mt-1">Access restricted to authorized personnel</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Username</label>
+                    <input type="text" id="adminUser" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500">
                 </div>
+                <div>
+                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Password</label>
+                    <input type="password" id="adminPass" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500">
+                </div>
+                <button onclick="handleAdminLogin()" class="w-full bg-gray-900 text-white font-medium py-2.5 rounded-xl text-sm hover:bg-black transition-all cursor-pointer mt-2">Login to Control Panel</button>
             </div>
         </div>
     </div>
@@ -67,7 +76,10 @@
                 <h1 class="text-2xl font-bold text-gray-900">OFBUZZ Master Control</h1>
                 <p class="text-xs text-gray-500">Real-time Automated Dashboard</p>
             </div>
-            <button onclick="loadAdminDashboard()" class="bg-amber-600 text-white text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-amber-700 cursor-pointer">Sync Pending Payments</button>
+            <div class="flex gap-2">
+                <button onclick="loadAdminDashboard()" class="bg-amber-600 text-white text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-amber-700 cursor-pointer">Sync Pending Payments</button>
+                <button onclick="logoutAdmin()" class="bg-gray-100 text-gray-600 text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-gray-200 cursor-pointer">Logout</button>
+            </div>
         </header>
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden">
@@ -88,6 +100,29 @@
         </div>
     </div>
 
+    <div id="paymentModal" class="hidden-view fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <h3 class="text-lg font-bold text-gray-900 mb-1">Submit Payment</h3>
+            <p id="modalMonthTarget" class="text-xs text-amber-600 font-semibold mb-4">Month 2 Tracker</p>
+            
+            <div class="space-y-3 mb-5">
+                <div>
+                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">UTR / Transaction ID</label>
+                    <input type="text" id="utrInput" placeholder="Enter 12-digit UTR Code" class="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold text-gray-400 uppercase block mb-1">Payment Slip Screenshot</label>
+                    <input type="file" id="fileInput" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 cursor-pointer">
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closePaymentModal()" class="w-1/2 bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 cursor-pointer">Cancel</button>
+                <button onclick="submitPaymentData()" id="submitPayBtn" class="w-1/2 bg-amber-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-amber-700 cursor-pointer">Submit Proof</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc4D1Hq2sf6z5MOEVhJLW1jHGuur10ZNROO-giDYNznTNILqxatg1LpZqmTHjtmvKAsQ/exec";
         
@@ -95,14 +130,41 @@
         let globalCustomerPhone = null;
         let globalMonthlyAmount = 0;
 
+        // Routing logic to handle deep links and login protection
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('view') === 'admin') {
                 document.getElementById('customerView').classList.add('hidden-view');
-                document.getElementById('adminView').classList.remove('hidden-view');
-                loadAdminDashboard();
+                
+                // Check if session flag exists to skip log-in on refresh
+                if (sessionStorage.getItem('adminAuthenticated') === 'true') {
+                    document.getElementById('adminView').classList.remove('hidden-view');
+                    loadAdminDashboard();
+                } else {
+                    document.getElementById('adminLoginView').classList.remove('hidden-view');
+                }
             }
         });
+
+        // Simple auth handler
+        function handleAdminLogin() {
+            const user = document.getElementById('adminUser').value.trim();
+            const pass = document.getElementById('adminPass').value.trim();
+
+            if (user === "ADMIN" && pass === "ADMIN") {
+                sessionStorage.setItem('adminAuthenticated', 'true');
+                document.getElementById('adminLoginView').classList.add('hidden-view');
+                document.getElementById('adminView').classList.remove('hidden-view');
+                loadAdminDashboard();
+            } else {
+                alert("Invalid username or password credentials.");
+            }
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem('adminAuthenticated');
+            window.location.search = ""; // Refresh back to customer view safely
+        }
 
         function fetchPassbook() {
             const phone = document.getElementById('phoneInput').value.trim();
@@ -171,13 +233,13 @@
             if(!utr && !fileBox) return alert("Please provide either a UTR code or upload a receipt screenshot.");
             
             const submitPayBtn = document.getElementById('submitPayBtn');
-            submitPayBtn.innerText = "Uploading...";
+            submitPayBtn.innerText = "Compressing...";
             submitPayBtn.disabled = true;
 
             if (fileBox) {
                 const reader = new FileReader();
                 reader.onloadend = function() {
-                    executePostSubmission(utr, reader.result, fileBox.name);
+                    compressAndSubmit(reader.result, fileBox.name, utr);
                 };
                 reader.readAsDataURL(fileBox);
             } else {
@@ -185,7 +247,39 @@
             }
         }
 
+        // Handles client-side scaling and quality reduction to resolve memory/time-out limit loops
+        function compressAndSubmit(base64Str, fileNameStr, utrCode) {
+            const img = new Image();
+            img.src = base64Str;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                const MAX_WIDTH = 1000;
+                if (width > MAX_WIDTH) {
+                    height = Math.round((height * MAX_WIDTH) / width);
+                    width = MAX_WIDTH;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                executePostSubmission(utrCode, compressedBase64, fileNameStr.replace(/\.[^/.]+$/, "") + ".jpg");
+            };
+            img.onerror = function() {
+                executePostSubmission(utrCode, base64Str, fileNameStr);
+            };
+        }
+
         function executePostSubmission(utrCode, base64Data, fileNameStr) {
+            const submitPayBtn = document.getElementById('submitPayBtn');
+            submitPayBtn.innerText = "Uploading Payload...";
+            
             const payload = {
                 action: "submit",
                 id: globalCustomerPhone,
@@ -200,14 +294,14 @@
                 method: "POST",
                 body: JSON.stringify(payload)
             }).then(r => r.json()).then(res => {
-                document.getElementById('submitPayBtn').innerText = "Submit Proof";
-                document.getElementById('submitPayBtn').disabled = false;
+                submitPayBtn.innerText = "Submit Proof";
+                submitPayBtn.disabled = false;
                 closePaymentModal();
                 alert("Payment records successfully submitted for internal verification!");
-                fetchPassbook(); // Reload grid to show pending pulse
+                fetchPassbook();
             }).catch(e => {
-                document.getElementById('submitPayBtn').innerText = "Submit Proof";
-                document.getElementById('submitPayBtn').disabled = false;
+                submitPayBtn.innerText = "Submit Proof";
+                submitPayBtn.disabled = false;
                 alert("Submission timed out.");
             });
         }
